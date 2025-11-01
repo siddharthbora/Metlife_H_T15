@@ -39,6 +39,7 @@ class APILibrary:
             logger.info("Expected_Data = "+str(expected_data))
             logger.info("Actual_Data = "+str(actual_data))
             logger.info(f"Response JSON: {json.dumps(response_json)}")
+            return response_json["products"]
         except:
             logger.info(f"Response Text: {self.last_response.text[:500]}")
         return self.last_response
@@ -69,9 +70,10 @@ class APILibrary:
         try:
             response_json = self.last_response.json()
             logger.info(f"Response JSON: {json.dumps(response_json)}")
+            return response_json["products"]
         except:
             logger.info(f"Response Text: {self.last_response.text[:500]}")
-        return self.last_response
+
         
     @keyword
     def verify_login_api(self, email, password):
@@ -289,4 +291,16 @@ class APILibrary:
         except Exception as e:
             logger.error(f"Failed to store response JSON: {str(e)}")
             raise
-
+    @keyword
+    def Validate_Search_Products(self,products):
+        try:
+            logger.info(len(products))
+            for product in products:
+                searched_product_data = self.search_product(product["name"])
+                expected_matched_data = [p for p in products if p["name"] in product["name"]]
+                logger.info("Searched Name : " + product["name"])
+                logger.info("Response from search api"+ str(searched_product_data))
+                assert sorted(searched_product_data)==sorted(expected_matched_data)
+        except Exception as e:
+            logger.error(f"Failed to store response JSON: {str(e)}")
+            raise
