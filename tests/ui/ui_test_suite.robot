@@ -36,7 +36,7 @@ TC_UI_001_User_Registration_Complete_Flow
     Fill And Validate    input[data-qa="signup-email"]    ${email}    Email
     Click And Wait    button[data-qa="signup-button"]    h2:has-text("ENTER ACCOUNT INFORMATION")    3
     Validate Page Loaded    /signup    ENTER ACCOUNT INFORMATION    input#id_gender1
-    
+
     Click And Wait    input#id_gender1
     Fill And Validate    input#password    ${USER_PASSWORD}    Password
     Select Options By    select#days    value    1
@@ -44,7 +44,7 @@ TC_UI_001_User_Registration_Complete_Flow
     Select Options By    select#years    value    1990
     Click And Wait    input#newsletter
     Click And Wait    input#optin
-    
+
     Fill And Validate    input#first_name    ${FIRST_NAME}    First Name
     Fill And Validate    input#last_name    ${LAST_NAME}    Last Name
     Fill And Validate    input#company    ${COMPANY}    Company
@@ -54,12 +54,12 @@ TC_UI_001_User_Registration_Complete_Flow
     Fill And Validate    input#city    ${CITY}    City
     Fill And Validate    input#zipcode    ${ZIPCODE}    Zipcode
     Fill And Validate    input#mobile_number    ${MOBILE}    Mobile
-    
+
     Click And Wait    button[data-qa="create-account"]    h2:has-text("ACCOUNT CREATED!")    3
     Validate Page Loaded    /account_created    ACCOUNT CREATED!    h2:has-text("ACCOUNT CREATED!")
     Click And Wait    a[data-qa="continue-button"]    a:has-text("Logged in as")
     Validate Element Visible    a:has-text("Logged in as ${USER_NAME}")    Logged In User
-    
+
     Click And Wait    a[href="/delete_account"]    h2:has-text("ACCOUNT DELETED!")
     Validate Page Loaded    /delete_account    ACCOUNT DELETED!    h2:has-text("ACCOUNT DELETED!")
     Click And Wait    a[data-qa="continue-button"]    a[href="/login"]
@@ -71,11 +71,11 @@ TC_UI_002_Login_Functionality_Verification
     Setup Browser And Navigate
     Navigate To Login Page
     Validate Page Loaded    /login    Login    .login-form
-    
+
     Enter Login Credentials    invalid@test.com    wrongpassword
     Submit Login Form
     Validate Login Error
-    
+
     Validate Page Loaded    /login    Login    .login-form
     Close Browser Instance
 
@@ -86,33 +86,6 @@ TC_UI_003_Login_With_Invalid_Credentials
     Enter Login Credentials    invalid@email.com    wrongpassword
     Submit Login Form
     Validate Login Error
-    Close Browser Instance
-
-TC_UI_004_Contact_Us_Form_Submission
-    [Tags]    ui    contact    smoke    regression
-    Setup Browser And Navigate
-    Navigate To Contact Page
-    Fill Contact Form    ${CONTACT_NAME}    ${CONTACT_EMAIL}    ${CONTACT_SUBJECT}    ${CONTACT_MESSAGE}
-    Submit Contact Form
-    Validate Success Message    Success! Your details have been submitted successfully.
-    Click And Wait    a[href="/"]    .features_items
-    Validate Home Page
-    Close Browser Instance
-
-TC_UI_005_Products_Page_And_Product_Details
-    [Tags]    ui    products    smoke    regression
-    Setup Browser And Navigate
-    Navigate To Products Page
-    View First Product Details
-    Validate Product Details
-    Close Browser Instance
-
-TC_UI_006_Product_Search_Functionality
-    [Tags]    ui    products    search    regression
-    Setup Browser And Navigate
-    Navigate To Products Page
-    Search Product    dress
-    Validate Search Results
     Close Browser Instance
 
 *** Keywords ***

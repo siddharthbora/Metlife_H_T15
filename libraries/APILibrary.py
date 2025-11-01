@@ -38,7 +38,7 @@ class APILibrary:
             assert expected_data==actual_data
             logger.info("Expected_Data = "+str(expected_data))
             logger.info("Actual_Data = "+str(actual_data))
-            logger.info(f"Response JSON: {json.dumps(response_json, indent=2)[:500]}...")
+            logger.info(f"Response JSON: {json.dumps(response_json)}")
         except:
             logger.info(f"Response Text: {self.last_response.text[:500]}")
         return self.last_response
@@ -68,7 +68,7 @@ class APILibrary:
         logger.info(f"Response Time: {self.last_response.elapsed.total_seconds()}s")
         try:
             response_json = self.last_response.json()
-            logger.info(f"Response JSON: {json.dumps(response_json, indent=2)[:500]}...")
+            logger.info(f"Response JSON: {json.dumps(response_json)}")
         except:
             logger.info(f"Response Text: {self.last_response.text[:500]}")
         return self.last_response

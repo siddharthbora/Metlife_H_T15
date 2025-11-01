@@ -67,7 +67,7 @@ TC_API_004_Post_Search_Product_Positive
     ${product_count}=    Get Length    ${search_results['products']}
     Should Be True    ${product_count} > 0
     ${first_product}=    Set Variable    ${search_results['products'][0]}
-    Should Contain    ${first_product['name']}    shirt    ignore_case=True
+    Should Contain    ${first_product['name']}    tshirt    ignore_case=True
     Should Not Be Empty    ${first_product['price']}
     Should Not Be Empty    ${first_product['brand']}
     Should Not Be Empty    ${first_product['category']}

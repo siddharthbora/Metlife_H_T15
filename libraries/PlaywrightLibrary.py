@@ -103,20 +103,21 @@ class PlaywrightLibrary:
     
     
     @keyword
-    def click_and_wait(self, selector, wait_selector=None, sleep_time=2):
+    def click_and_wait(self, selector, wait_selector=None, sleep_time=1):
         try:
-            self.page.wait_for_selector(selector, timeout=10000)
-            self.page.click(selector)
-            time.sleep(sleep_time)
+            self.page.click(selector, timeout=10000)
             
             if wait_selector:
                 try:
-                    self.page.wait_for_selector(wait_selector, timeout=15000)
+                    self.page.locator(wait_selector).wait_for(state="visible", timeout=15000)
                     logger.info(f" Clicked: {selector} and waited for: {wait_selector}")
                 except:
                     logger.info(f"️ Clicked: {selector} but wait element '{wait_selector}' not found - continuing anyway")
             else:
                 logger.info(f" Clicked: {selector}")
+            
+            if sleep_time > 0:
+                time.sleep(sleep_time)
             
         except Exception as e:
             logger.error(f" Click failed for {selector}: {str(e)}")
@@ -125,23 +126,18 @@ class PlaywrightLibrary:
     @keyword
     def fill_and_validate(self, selector, value, field_name):
         try:
-            self.page.wait_for_selector(selector, timeout=10000)
+            locator = self.page.locator(selector)
             
-            self.page.fill(selector, "")
-            self.page.fill(selector, value)
-            
-            time.sleep(0.5)
+            locator.clear()
+            locator.fill(value)
             
             try:
-                actual_value = self.page.input_value(selector)
-            except:
-                actual_value = self.page.get_attribute(selector, 'value')
-            
-            if actual_value == value:
+                actual_value = locator.input_value()
+                assert actual_value == value, f"{field_name} validation failed. Expected: '{value}', Got: '{actual_value}'"
                 logger.info(f" {field_name}: {value}")
                 return True
-            else:
-                logger.info(f"️ {field_name} validation: Expected '{value}', Got '{actual_value}' - continuing anyway")
+            except AssertionError as ae:
+                logger.info(f"️ {field_name} validation: {str(ae)} - continuing anyway")
                 return True
                 
         except Exception as e:
@@ -152,17 +148,20 @@ class PlaywrightLibrary:
     def validate_page_loaded(self, url_part, title_part, main_element):
         try:
             current_url = self.page.url
+            assert url_part in current_url, f"URL validation failed. Expected '{url_part}' in '{current_url}'"
+            
+            try:
+                current_title = self.page.title()
+                title_words = title_part.lower().split()
+                title_matched = any(word in current_title.lower() for word in title_words)
+                assert title_matched, f"Title validation failed. Expected words from '{title_part}' in '{current_title}'"
+            except AssertionError as ae:
+                logger.info(f"️ Title validation: {str(ae)} - continuing anyway")
+            
+            main_locator = self.page.locator(main_element)
+            assert main_locator.is_visible(), f"Main element '{main_element}' is not visible"
+            
             current_title = self.page.title()
-            
-            if url_part not in current_url:
-                raise AssertionError(f"URL validation failed. Expected '{url_part}' in '{current_url}'")
-            
-            title_words = title_part.lower().split()
-            title_matched = any(word in current_title.lower() for word in title_words)
-            if not title_matched:
-                logger.info(f"️ Title validation: Expected words from '{title_part}' in '{current_title}' - continuing anyway")
-            
-            self.page.wait_for_selector(main_element, timeout=15000)
             logger.info(f" Page loaded: {current_title}")
             return True
             
@@ -173,12 +172,10 @@ class PlaywrightLibrary:
     @keyword
     def validate_element_visible(self, selector, element_name):
         try:
-            self.page.wait_for_selector(selector, timeout=15000)
-            if self.page.locator(selector).is_visible():
-                logger.info(f" {element_name} is visible")
-                return True
-            else:
-                raise AssertionError(f"{element_name} is not visible")
+            locator = self.page.locator(selector)
+            assert locator.is_visible(), f"{element_name} is not visible"
+            logger.info(f" {element_name} is visible")
+            return True
                 
         except Exception as e:
             logger.error(f" Element visibility failed for {element_name}: {str(e)}")
@@ -187,13 +184,11 @@ class PlaywrightLibrary:
     @keyword
     def validate_element_text(self, selector, expected_text, element_name):
         try:
-            self.page.wait_for_selector(selector, timeout=10000)
-            actual_text = self.page.text_content(selector)
-            if expected_text.lower() in actual_text.lower():
-                logger.info(f" {element_name} text validation passed: '{expected_text}'")
-                return True
-            else:
-                raise AssertionError(f"{element_name} text validation failed. Expected: '{expected_text}', Got: '{actual_text}'")
+            locator = self.page.locator(selector)
+            actual_text = locator.text_content()
+            assert expected_text.lower() in actual_text.lower(), f"{element_name} text validation failed. Expected: '{expected_text}', Got: '{actual_text}'"
+            logger.info(f" {element_name} text validation passed: '{expected_text}'")
+            return True
                 
         except Exception as e:
             logger.error(f" Text validation failed for {element_name}: {str(e)}")
@@ -255,10 +250,12 @@ class PlaywrightLibrary:
     @keyword
     def search_product(self, product_name):
         try:
-            self.page.wait_for_selector('//input[@id="search_product"]', timeout=10000)
-            self.page.fill('//input[@id="search_product"]', product_name)
-            self.page.click('//button[@id="submit_search"]')
-            time.sleep(3)
+            search_input = self.page.locator('//input[@id="search_product"]')
+            search_button = self.page.locator('//button[@id="submit_search"]')
+            
+            search_input.fill(product_name)
+            search_button.click()
+            
             logger.info(f" Searched for product: {product_name}")
             
         except Exception as e:
@@ -268,16 +265,17 @@ class PlaywrightLibrary:
     @keyword
     def validate_search_results(self):
         try:
-            self.page.wait_for_selector('//h2[contains(text(), "Searched Products")]', timeout=15000)
+            search_title = self.page.locator('//h2[contains(text(), "Searched Products")]')
+            assert search_title.is_visible(), "Search title 'Searched Products' is not visible"
             
-            self.page.wait_for_selector('//div[@class="features_items"]//div[contains(@class, "col-sm-4")]', timeout=15000)
+            results_locator = self.page.locator('//div[@class="features_items"]//div[contains(@class, "col-sm-4")]')
+            results_count = results_locator.count()
+            assert results_count > 0, "No search results found"
             
-            results_count = self.page.locator('//div[@class="features_items"]//div[contains(@class, "col-sm-4")]').count()
-            if results_count > 0:
-                logger.info(f" Search results found: {results_count} products")
-                return True
-            else:
-                raise AssertionError("No search results found")
+            assert results_locator.first.is_visible(), "First search result is not visible"
+            
+            logger.info(f" Search results found: {results_count} products")
+            return True
                 
         except Exception as e:
             logger.error(f" Search results validation failed: {str(e)}")
@@ -286,11 +284,11 @@ class PlaywrightLibrary:
     @keyword
     def view_first_product_details(self):
         try:
-            self.page.wait_for_selector('//a[@href="/product_details/1"]', timeout=10000)
-            self.page.click('//a[@href="/product_details/1"]')
-            time.sleep(3)
+            product_link = self.page.locator('//a[@href="/product_details/1"]')
+            product_link.click()
             
-            self.page.wait_for_selector('//div[@class="product-information"]', timeout=15000)
+            product_info = self.page.locator('//div[@class="product-information"]')
+            assert product_info.is_visible(), "Product information section is not visible"
             logger.info(" Product details page loaded")
             
         except Exception as e:
@@ -323,7 +321,8 @@ class PlaywrightLibrary:
     @keyword
     def validate_logged_in_status(self):
         try:
-            self.page.wait_for_selector('//a[contains(text(), "Logged in as")]', timeout=15000)
+            logged_in_element = self.page.locator('//a[contains(text(), "Logged in as")]')
+            assert logged_in_element.is_visible(), "Logged in status element is not visible"
             logger.info(" User successfully logged in")
             return True
         except Exception as e:
@@ -346,13 +345,14 @@ class PlaywrightLibrary:
     @keyword
     def select_options_by(self, selector, method, value):
         try:
-            self.page.wait_for_selector(selector, timeout=10000)
+            select_locator = self.page.locator(selector)
+            
             if method.lower() == "value":
-                self.page.select_option(selector, value=value)
+                select_locator.select_option(value=value)
             elif method.lower() == "label":
-                self.page.select_option(selector, label=value)
+                select_locator.select_option(label=value)
             else:
-                self.page.select_option(selector, value)
+                select_locator.select_option(value)
             logger.info(f" Selected option: {value}")
             return True
         except Exception as e:
@@ -362,7 +362,8 @@ class PlaywrightLibrary:
     @keyword
     def validate_home_page(self):
         try:
-            self.page.wait_for_selector(".features_items", timeout=15000)
+            home_features = self.page.locator(".features_items")
+            assert home_features.is_visible(), "Home page features section is not visible"
             logger.info(" Home page validated")
             return True
         except Exception as e:
