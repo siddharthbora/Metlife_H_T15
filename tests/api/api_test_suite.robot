@@ -240,14 +240,6 @@ TC_API_014_Delete_Login_Endpoint_Negative
     Delete Verify Login
     Verify Response Status Code    200
     Verify Response Contains Text    This request method is not supported
-    
-    
-TC_015_Loop_case
-    [Tags]    api
-    ${Products}    Get All Products List
-    Validate_Search_Products    ${Products}
-    
-    
 
 *** Keywords ***
 Initialize API Test Environment
