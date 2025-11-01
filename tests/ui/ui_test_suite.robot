@@ -2,7 +2,7 @@
 Documentation    UI Test Suite for Automation Exercise
 ...              Comprehensive UI testing covering Registration, Login, Products, and Contact functionality
 ...              Author: QA Team | Framework: Robot Framework + Playwright
-Library          ../libraries/PlaywrightLibrary.py
+Library          ../../libraries/PlaywrightLibrary.py
 Suite Setup      Initialize UI Test Environment
 Suite Teardown   Cleanup UI Test Environment
 

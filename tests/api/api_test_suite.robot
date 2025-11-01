@@ -2,7 +2,7 @@
 Documentation    API Test Suite for Automation Exercise
 ...              Comprehensive API testing covering Products, Brands, Login, and Account management
 ...              Author: QA Team | Framework: Robot Framework
-Library          ../libraries/APILibrary.py
+Library          ../../libraries/APILibrary.py
 Suite Setup      Initialize API Test Environment
 Suite Teardown   Cleanup API Test Environment
 
@@ -20,8 +20,6 @@ ${BASE_EMAIL}           testuser
 ${TEST_PASSWORD}        Test@123
 
 *** Test Cases ***
-
-# ========== GET METHOD TESTS - POSITIVE ==========
 TC_API_001_Get_Products_List_Positive
     [Documentation]    Positive GET Test: Successfully retrieve all products list
     [Tags]    api    get    products    positive    smoke
@@ -45,7 +43,6 @@ TC_API_003_Get_User_Account_Detail_Positive
     [Tags]    api    get    account    positive
     ${timestamp}=    Evaluate    int(__import__('time').time())
     ${email}=    Set Variable    getuser${timestamp}@test.com
-    # Setup: Create user first
     Create User Account
     ...    name=Get User
     ...    email=${email}
@@ -65,20 +62,26 @@ TC_API_003_Get_User_Account_Detail_Positive
     ...    zipcode=555555
     ...    mobile_number=5555555555
     Verify Response Status Code    200
-    # Actual GET test
     Get User Account Detail By Email    ${email}
     Verify Response Status Code    200
     ${json}=    Get Response Json
     Log    User account details retrieved successfully
-
-# ========== POST METHOD TESTS - POSITIVE ==========
 TC_API_004_Post_Search_Product_Positive
-    [Documentation]    Positive POST Test: Successfully search product with valid search term
-    [Tags]    api    post    products    positive    smoke
+    [Documentation]    Positive POST Test: Search product and validate search results
+    [Tags]    api    post    products    positive    smoke    validation
     Search Product    tshirt
     Verify Response Status Code    200
-    ${json}=    Get Response Json
-    Log    Product search completed successfully
+    ${search_results}=    Get Response Json
+    Should Not Be Empty    ${search_results['products']}
+    ${product_count}=    Get Length    ${search_results['products']}
+    Should Be True    ${product_count} > 0
+    ${first_product}=    Set Variable    ${search_results['products'][0]}
+    Should Contain    ${first_product['name']}    shirt    ignore_case=True
+    Should Not Be Empty    ${first_product['price']}
+    Should Not Be Empty    ${first_product['brand']}
+    Should Not Be Empty    ${first_product['category']}
+    Log    Search returned ${product_count} products matching 'tshirt'
+    Log    Product search completed and validated successfully
 
 TC_API_005_Post_Login_Valid_Credentials_Positive
     [Documentation]    Positive POST Test: Successfully login with valid credentials
@@ -88,8 +91,8 @@ TC_API_005_Post_Login_Valid_Credentials_Positive
     Verify Response Contains Text    User exists
 
 TC_API_006_Post_Create_User_Account_Positive
-    [Documentation]    Positive POST Test: Successfully create new user account
-    [Tags]    api    post    account    positive    smoke
+    [Documentation]    Positive POST Test: Create user account and validate with GET request
+    [Tags]    api    post    account    positive    smoke    validation
     ${timestamp}=    Evaluate    int(__import__('time').time())
     ${email}=    Set Variable    ${BASE_EMAIL}${timestamp}@test.com
     Create User Account
@@ -112,14 +115,26 @@ TC_API_006_Post_Create_User_Account_Positive
     ...    mobile_number=9876543210
     Verify Response Status Code    200
     Verify Response Contains Text    User created
-
-# ========== PUT METHOD TESTS - POSITIVE ==========
+    Get User Account Detail By Email    ${email}
+    Verify Response Status Code    200
+    ${user_data}=    Get Response Json
+    Should Be Equal    ${user_data['user']['name']}    Test User
+    Should Be Equal    ${user_data['user']['email']}    ${email}
+    Should Be Equal    ${user_data['user']['first_name']}    Test
+    Should Be Equal    ${user_data['user']['last_name']}    User
+    Should Be Equal    ${user_data['user']['company']}    TestCo
+    Should Be Equal    ${user_data['user']['address1']}    123 Street
+    Should Be Equal    ${user_data['user']['address2']}    Apt 1
+    Should Be Equal    ${user_data['user']['country']}    India
+    Should Be Equal    ${user_data['user']['state']}    TestState
+    Should Be Equal    ${user_data['user']['city']}    TestCity
+    Should Be Equal    ${user_data['user']['zipcode']}    560001
+    Log    User account created and validated successfully
 TC_API_007_Put_Update_User_Account_Positive
-    [Documentation]    Positive PUT Test: Successfully update user account details
-    [Tags]    api    put    account    positive
+    [Documentation]    Positive PUT Test: Update user account and validate changes with GET request
+    [Tags]    api    put    account    positive    validation
     ${timestamp}=    Evaluate    int(__import__('time').time())
     ${email}=    Set Variable    update${timestamp}@test.com
-    # Setup: Create user first
     Create User Account
     ...    name=Original User
     ...    email=${email}
@@ -139,7 +154,6 @@ TC_API_007_Put_Update_User_Account_Positive
     ...    zipcode=111111
     ...    mobile_number=1111111111
     Verify Response Status Code    200
-    # Actual PUT test
     Update User Account
     ...    name=Updated User
     ...    email=${email}
@@ -160,14 +174,25 @@ TC_API_007_Put_Update_User_Account_Positive
     ...    mobile_number=9999999999
     Verify Response Status Code    200
     Verify Response Contains Text    User updated
-
-# ========== DELETE METHOD TESTS - POSITIVE ==========
+    Get User Account Detail By Email    ${email}
+    Verify Response Status Code    200
+    ${updated_data}=    Get Response Json
+    Should Be Equal    ${updated_data['user']['name']}    Updated User
+    Should Be Equal    ${updated_data['user']['email']}    ${email}
+    Should Be Equal    ${updated_data['user']['first_name']}    Updated
+    Should Be Equal    ${updated_data['user']['last_name']}    UserName
+    Should Be Equal    ${updated_data['user']['company']}    UpdatedCo
+    Should Be Equal    ${updated_data['user']['address1']}    Updated Street
+    Should Be Equal    ${updated_data['user']['address2']}    Floor 5
+    Should Be Equal    ${updated_data['user']['state']}    UpdatedState
+    Should Be Equal    ${updated_data['user']['city']}    UpdatedCity
+    Should Be Equal    ${updated_data['user']['zipcode']}    999999
+    Log    User account updated and validated successfully
 TC_API_008_Delete_User_Account_Positive
-    [Documentation]    Positive DELETE Test: Successfully delete user account
-    [Tags]    api    delete    account    positive
+    [Documentation]    Positive DELETE Test: Delete user account and validate with GET request
+    [Tags]    api    delete    account    positive    validation
     ${timestamp}=    Evaluate    int(__import__('time').time())
     ${email}=    Set Variable    delete${timestamp}@test.com
-    # Setup: Create user first
     Create User Account
     ...    name=Delete User
     ...    email=${email}
@@ -187,12 +212,14 @@ TC_API_008_Delete_User_Account_Positive
     ...    zipcode=123456
     ...    mobile_number=9988776655
     Verify Response Status Code    200
-    # Actual DELETE test
     Delete User Account    ${email}    Delete@123
     Verify Response Status Code    200
     Verify Response Contains Text    Account deleted
-
-# ========== POST METHOD TESTS - NEGATIVE ==========
+    Get User Account Detail By Email    ${email}
+    Verify Response Status Code    200
+    ${delete_response}=    Get Response Json
+    Should Be Equal    ${delete_response['message']}    User not found!
+    Log    User account deleted and validated successfully
 TC_API_009_Post_Products_List_Negative
     [Documentation]    Negative POST Test: POST request to products list should fail (method not allowed)
     [Tags]    api    post    products    negative
@@ -220,16 +247,12 @@ TC_API_012_Post_Login_Invalid_Credentials_Negative
     Verify Login Api    ${INVALID_EMAIL}    ${INVALID_PASSWORD}
     Verify Response Status Code    200
     Verify Response Contains Text    User not found
-
-# ========== PUT METHOD TESTS - NEGATIVE ==========
 TC_API_013_Put_Brands_List_Negative
     [Documentation]    Negative PUT Test: PUT request to brands list should fail (method not allowed)
     [Tags]    api    put    brands    negative
     Put To Brands List
     Verify Response Status Code    200
     Verify Response Contains Text    This request method is not supported
-
-# ========== DELETE METHOD TESTS - NEGATIVE ==========
 TC_API_014_Delete_Login_Endpoint_Negative
     [Documentation]    Negative DELETE Test: DELETE request to login endpoint should fail (method not allowed)
     [Tags]    api    delete    login    negative
