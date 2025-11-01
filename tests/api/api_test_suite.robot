@@ -1,17 +1,12 @@
 *** Settings ***
-Documentation    API Test Suite for Automation Exercise
-...              Comprehensive API testing covering Products, Brands, Login, and Account management
-...              Author: QA Team | Framework: Robot Framework
 Library          ../../libraries/APILibrary.py
 Suite Setup      Initialize API Test Environment
 Suite Teardown   Cleanup API Test Environment
 
 *** Variables ***
-# Test Configuration
 ${BASE_URL}             https://automationexercise.com
 ${API_TIMEOUT}          30s
 
-# Test Data
 ${VALID_EMAIL}          test@example.com
 ${VALID_PASSWORD}       test123
 ${INVALID_EMAIL}        notfound@test.com
@@ -21,7 +16,6 @@ ${TEST_PASSWORD}        Test@123
 
 *** Test Cases ***
 TC_API_001_Get_Products_List_Positive
-    [Documentation]    Positive GET Test: Successfully retrieve all products list
     [Tags]    api    get    products    positive    smoke
     Get All Products List
     Verify Response Status Code    200
@@ -30,7 +24,6 @@ TC_API_001_Get_Products_List_Positive
     Log    Products list retrieved successfully
 
 TC_API_002_Get_Brands_List_Positive
-    [Documentation]    Positive GET Test: Successfully retrieve all brands list
     [Tags]    api    get    brands    positive    smoke
     Get All Brands List
     Verify Response Status Code    200
@@ -39,7 +32,6 @@ TC_API_002_Get_Brands_List_Positive
     Log    Brands list retrieved successfully
 
 TC_API_003_Get_User_Account_Detail_Positive
-    [Documentation]    Positive GET Test: Successfully retrieve user account details by email
     [Tags]    api    get    account    positive
     ${timestamp}=    Evaluate    int(__import__('time').time())
     ${email}=    Set Variable    getuser${timestamp}@test.com
@@ -67,7 +59,6 @@ TC_API_003_Get_User_Account_Detail_Positive
     ${json}=    Get Response Json
     Log    User account details retrieved successfully
 TC_API_004_Post_Search_Product_Positive
-    [Documentation]    Positive POST Test: Search product and validate search results
     [Tags]    api    post    products    positive    smoke    validation
     Search Product    tshirt
     Verify Response Status Code    200
@@ -84,14 +75,12 @@ TC_API_004_Post_Search_Product_Positive
     Log    Product search completed and validated successfully
 
 TC_API_005_Post_Login_Valid_Credentials_Positive
-    [Documentation]    Positive POST Test: Successfully login with valid credentials
     [Tags]    api    post    login    positive    smoke
     Verify Login Api    ${VALID_EMAIL}    ${VALID_PASSWORD}
     Verify Response Status Code    200
     Verify Response Contains Text    User exists
 
 TC_API_006_Post_Create_User_Account_Positive
-    [Documentation]    Positive POST Test: Create user account and validate with GET request
     [Tags]    api    post    account    positive    smoke    validation
     ${timestamp}=    Evaluate    int(__import__('time').time())
     ${email}=    Set Variable    ${BASE_EMAIL}${timestamp}@test.com
@@ -131,7 +120,6 @@ TC_API_006_Post_Create_User_Account_Positive
     Should Be Equal    ${user_data['user']['zipcode']}    560001
     Log    User account created and validated successfully
 TC_API_007_Put_Update_User_Account_Positive
-    [Documentation]    Positive PUT Test: Update user account and validate changes with GET request
     [Tags]    api    put    account    positive    validation
     ${timestamp}=    Evaluate    int(__import__('time').time())
     ${email}=    Set Variable    update${timestamp}@test.com
@@ -189,7 +177,6 @@ TC_API_007_Put_Update_User_Account_Positive
     Should Be Equal    ${updated_data['user']['zipcode']}    999999
     Log    User account updated and validated successfully
 TC_API_008_Delete_User_Account_Positive
-    [Documentation]    Positive DELETE Test: Delete user account and validate with GET request
     [Tags]    api    delete    account    positive    validation
     ${timestamp}=    Evaluate    int(__import__('time').time())
     ${email}=    Set Variable    delete${timestamp}@test.com
@@ -221,40 +208,34 @@ TC_API_008_Delete_User_Account_Positive
     Should Be Equal    ${delete_response['message']}    User not found!
     Log    User account deleted and validated successfully
 TC_API_009_Post_Products_List_Negative
-    [Documentation]    Negative POST Test: POST request to products list should fail (method not allowed)
     [Tags]    api    post    products    negative
     Post To Products List
     Verify Response Status Code    200
     Verify Response Contains Text    This request method is not supported
 
 TC_API_010_Post_Search_Product_Missing_Parameter_Negative
-    [Documentation]    Negative POST Test: Search product without required parameter should fail
     [Tags]    api    post    products    negative
     Search Product Without Parameter
     Verify Response Status Code    400
     Verify Response Contains Text    Bad request
 
 TC_API_011_Post_Login_Missing_Email_Negative
-    [Documentation]    Negative POST Test: Login without email parameter should fail
     [Tags]    api    post    login    negative
     Verify Login Without Email    ${VALID_PASSWORD}
     Verify Response Status Code    400
     Verify Response Contains Text    Bad request
 
 TC_API_012_Post_Login_Invalid_Credentials_Negative
-    [Documentation]    Negative POST Test: Login with invalid credentials should fail
     [Tags]    api    post    login    negative
     Verify Login Api    ${INVALID_EMAIL}    ${INVALID_PASSWORD}
     Verify Response Status Code    200
     Verify Response Contains Text    User not found
 TC_API_013_Put_Brands_List_Negative
-    [Documentation]    Negative PUT Test: PUT request to brands list should fail (method not allowed)
     [Tags]    api    put    brands    negative
     Put To Brands List
     Verify Response Status Code    200
     Verify Response Contains Text    This request method is not supported
 TC_API_014_Delete_Login_Endpoint_Negative
-    [Documentation]    Negative DELETE Test: DELETE request to login endpoint should fail (method not allowed)
     [Tags]    api    delete    login    negative
     Delete Verify Login
     Verify Response Status Code    200
@@ -262,12 +243,10 @@ TC_API_014_Delete_Login_Endpoint_Negative
 
 *** Keywords ***
 Initialize API Test Environment
-    [Documentation]    Setup for API test execution
     Log    Initializing API Test Environment
     Log    Base URL: ${BASE_URL}
     Log    API Test Suite Ready
 
 Cleanup API Test Environment
-    [Documentation]    Cleanup after API test execution
     Log    API Test Suite Execution Completed
     Log    Cleaning up API Test Environment

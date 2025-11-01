@@ -1,17 +1,12 @@
 *** Settings ***
-Documentation    UI Test Suite for Automation Exercise
-...              Comprehensive UI testing covering Registration, Login, Products, and Contact functionality
-...              Author: QA Team | Framework: Robot Framework + Playwright
 Library          ../../libraries/PlaywrightLibrary.py
 Suite Setup      Initialize UI Test Environment
 Suite Teardown   Cleanup UI Test Environment
 
 *** Variables ***
-# Test Configuration
 ${BASE_URL}             https://automationexercise.com
 ${UI_TIMEOUT}           30s
 
-# User Registration Data
 ${USER_NAME}            Test User
 ${USER_PASSWORD}        Test@123
 ${FIRST_NAME}           Test
@@ -24,7 +19,6 @@ ${CITY}                 Test City
 ${ZIPCODE}              12345
 ${MOBILE}               9876543210
 
-# Contact Form Data
 ${CONTACT_NAME}         Test User
 ${CONTACT_EMAIL}        testuser@automation.com
 ${CONTACT_SUBJECT}      Test Subject
@@ -33,7 +27,6 @@ ${CONTACT_MESSAGE}      This is a test message for contact us form automation te
 *** Test Cases ***
 
 TC_UI_001_User_Registration_Complete_Flow
-    [Documentation]    UI Test 1: Verify complete user registration workflow
     [Tags]    ui    registration    smoke    regression
     Setup Browser And Navigate
     Navigate To Login Page
@@ -74,7 +67,6 @@ TC_UI_001_User_Registration_Complete_Flow
     Close Browser Instance
 
 TC_UI_002_Login_Functionality_Verification
-    [Documentation]    UI Test 2: Verify login page functionality and error handling
     [Tags]    ui    login    smoke    regression
     Setup Browser And Navigate
     Navigate To Login Page
@@ -88,7 +80,6 @@ TC_UI_002_Login_Functionality_Verification
     Close Browser Instance
 
 TC_UI_003_Login_With_Invalid_Credentials
-    [Documentation]    UI Test 3: Verify login behavior with incorrect credentials
     [Tags]    ui    login    negative    regression
     Setup Browser And Navigate
     Navigate To Login Page
@@ -98,7 +89,6 @@ TC_UI_003_Login_With_Invalid_Credentials
     Close Browser Instance
 
 TC_UI_004_Contact_Us_Form_Submission
-    [Documentation]    UI Test 4: Verify contact us form submission functionality
     [Tags]    ui    contact    smoke    regression
     Setup Browser And Navigate
     Navigate To Contact Page
@@ -110,7 +100,6 @@ TC_UI_004_Contact_Us_Form_Submission
     Close Browser Instance
 
 TC_UI_005_Products_Page_And_Product_Details
-    [Documentation]    UI Test 5: Verify products page and individual product details
     [Tags]    ui    products    smoke    regression
     Setup Browser And Navigate
     Navigate To Products Page
@@ -119,7 +108,6 @@ TC_UI_005_Products_Page_And_Product_Details
     Close Browser Instance
 
 TC_UI_006_Product_Search_Functionality
-    [Documentation]    UI Test 6: Verify product search functionality
     [Tags]    ui    products    search    regression
     Setup Browser And Navigate
     Navigate To Products Page
@@ -129,14 +117,12 @@ TC_UI_006_Product_Search_Functionality
 
 *** Keywords ***
 Initialize UI Test Environment
-    [Documentation]    Setup for UI test execution
     Log    Initializing UI Test Environment
     Log    Base URL: ${BASE_URL}
     Log    Browser: Chromium (Playwright)
     Log    UI Test Suite Ready
 
 Cleanup UI Test Environment
-    [Documentation]    Cleanup after UI test execution
     Run Keyword And Ignore Error    Close Browser Instance
     Log    UI Test Suite Execution Completed
     Log    Cleaning up UI Test Environment
