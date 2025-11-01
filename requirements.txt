@@ -1,0 +1,7 @@
+robotframework==7.0
+robotframework-browser==17.5.2
+robotframework-requests==0.9.6
+requests==2.31.0
+robotframework-jsonlibrary==0.5
+robotframework-datadriver==1.10.0
+
